@@ -5,61 +5,169 @@
     <span class="badge bg-black text-white rounded-pill px-3 py-2 fw-normal fs-7">v1.0</span>
   </header>
 
-  <div class="row justify-content-center mb-5">
-    <div class="col-12 col-md-8 col-lg-6">
-      <div class="input-group">
-        <input 
-          type="text" 
-          class="form-control form-control-lg bg-transparent border-2 border-dark rounded-0 text-black shadow-none font-monospace placeholder-dark" 
-          placeholder="buscar película..." 
-          [(ngModel)]="searchQuery" 
-          (keyup.enter)="onSearch()"
-        />
-        <button 
-          class="btn btn-dark btn-lg border-2 border-dark rounded-0 px-4 text-uppercase fw-bold" 
-          (click)="onSearch()">
-          <i class="bi bi-search me-1"></i>
-        </button>
+  <!-- ==================== VISTA DE EPISODIOS ==================== -->
+  <ng-container *ngIf="selectedSeries; else searchView">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <button class="btn btn-outline-dark btn-sm border-2 rounded-0 px-3 fw-bold" (click)="backToSearch()">
+        ← VOLVER
+      </button>
+      <div>
+        <h4 class="fw-bold text-uppercase m-0">{{ selectedSeries.Title }}</h4>
+        <small class="text-secondary">({{ selectedSeries.Year }}) — IMDb: {{ selectedSeries.imdbID }}</small>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="errorMessage" class="text-center my-4 py-3 border border-dark border-1 bg-light">
-    <p class="m-0 fw-bold font-monospace text-uppercase small">// {{ errorMessage }}</p>
-  </div>
+    <!-- Selector de temporadas -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <button
+        *ngFor="let season of seasons"
+        class="btn btn-sm border border-dark rounded-0 font-monospace text-uppercase px-3"
+        [class.btn-dark]="season === selectedSeason"
+        [class.text-white]="season === selectedSeason"
+        [class.bg-transparent]="season !== selectedSeason"
+        [class.text-dark]="season !== selectedSeason"
+        (click)="loadSeason(season)">
+        Temp. {{ season }}
+      </button>
+    </div>
 
-  <div class="row g-4" *ngIf="movies.length > 0">
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let movie of movies">
-      <div class="card h-100 border-2 border-dark rounded-0 bg-white p-2">
-        
-        <div class="overflow-hidden border border-dark mb-2 position-relative bg-light">
-          <img 
-            [src]="movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450/000000/FFFFFF?text=NO+IMAGE'" 
-            [alt]="movie.Title" 
-            class="card-img-top rounded-0 pe-none filter-grayscale grayscale img-fluid"
-            style="filter: grayscale(100%); object-fit: cover; aspect-ratio: 2/3;"
+    <!-- Loading -->
+    <div *ngIf="loadingEpisodes" class="text-center py-5">
+      <div class="spinner-border text-dark" role="status"></div>
+      <p class="mt-2 text-uppercase small">cargando episodios...</p>
+    </div>
+
+    <!-- Lista de episodios -->
+    <div *ngIf="!loadingEpisodes && episodes.length > 0">
+      <div class="table-responsive">
+        <table class="table table-bordered border-dark font-monospace small">
+          <thead class="table-dark text-uppercase">
+            <tr>
+              <th class="px-3" style="width: 60px;">Ep.</th>
+              <th>Título</th>
+              <th class="text-center" style="width: 100px;">Estreno</th>
+              <th class="text-center" style="width: 80px;">Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ep of episodes">
+              <td class="text-center fw-bold px-3">{{ ep.Episode }}</td>
+              <td>{{ ep.Title }}</td>
+              <td class="text-center">{{ ep.Released }}</td>
+              <td class="text-center">
+                <span class="badge bg-dark text-white rounded-0 px-2">{{ ep.imdbRating || '—' }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="!loadingEpisodes && episodes.length === 0" class="text-center py-4 border border-dark">
+      <p class="m-0 text-uppercase small">// No hay episodios disponibles para esta temporada.</p>
+    </div>
+
+  </ng-container>
+
+  <!-- ==================== VISTA DE BÚSQUEDA ==================== -->
+  <ng-template #searchView>
+
+    <div class="row justify-content-center mb-4">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="input-group">
+          <input 
+            type="text" 
+            class="form-control form-control-lg bg-transparent border-2 border-dark rounded-0 text-black shadow-none font-monospace placeholder-dark" 
+            placeholder="buscar película o serie..." 
+            [(ngModel)]="searchQuery" 
+            (keyup.enter)="onSearch()"
           />
+          <button 
+            class="btn btn-dark btn-lg border-2 border-dark rounded-0 px-4 text-uppercase fw-bold" 
+            (click)="onSearch()">
+            <i class="bi bi-search me-1"></i>
+          </button>
         </div>
-
-        <div class="card-body p-2 d-flex flex-column justify-content-between">
-          <div>
-            <span class="badge bg-transparent text-dark border border-dark rounded-0 mb-2 font-monospace fs-8">
-              {{ movie.Type | uppercase }}
-            </span>
-            <h5 class="card-title fw-bold text-uppercase text-truncate mb-1 font-monospace fs-6">
-              {{ movie.Title }}
-            </h5>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center border-top border-dark pt-2 mt-2">
-            <span class="small font-monospace text-secondary">AÑO :</span>
-            <span class="fw-bold font-monospace text-dark fs-7">({{ movie.Year }})</span>
-          </div>
-        </div>
-
       </div>
     </div>
-  </div>
+
+    <!-- Filtros -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="d-flex gap-2 justify-content-center">
+          <button 
+            class="btn btn-sm border border-dark rounded-0 font-monospace text-uppercase small px-3 py-2"
+            [class.btn-dark]="selectedType === ''"
+            [class.text-white]="selectedType === ''"
+            [class.bg-transparent]="selectedType !== ''"
+            [class.text-dark]="selectedType !== ''"
+            (click)="selectedType = ''; onSearch()">
+            Todo
+          </button>
+          <button 
+            class="btn btn-sm border border-dark rounded-0 font-monospace text-uppercase small px-3 py-2"
+            [class.btn-dark]="selectedType === 'movie'"
+            [class.text-white]="selectedType === 'movie'"
+            [class.bg-transparent]="selectedType !== 'movie'"
+            [class.text-dark]="selectedType !== 'movie'"
+            (click)="selectedType = 'movie'; onSearch()">
+            Películas
+          </button>
+          <button 
+            class="btn btn-sm border border-dark rounded-0 font-monospace text-uppercase small px-3 py-2"
+            [class.btn-dark]="selectedType === 'series'"
+            [class.text-white]="selectedType === 'series'"
+            [class.bg-transparent]="selectedType !== 'series'"
+            [class.text-dark]="selectedType !== 'series'"
+            (click)="selectedType = 'series'; onSearch()">
+            Series
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="text-center my-4 py-3 border border-dark border-1 bg-light">
+      <p class="m-0 fw-bold font-monospace text-uppercase small">// {{ errorMessage }}</p>
+    </div>
+
+    <div class="row g-4" *ngIf="movies.length > 0">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let movie of movies">
+        <div class="card h-100 border-2 border-dark rounded-0 bg-white p-2 cursor-pointer" (click)="movie.Type === 'series' ? selectSeries(movie) : null"
+             [style.cursor]="movie.Type === 'series' ? 'pointer' : 'default'">
+          
+          <div class="overflow-hidden border border-dark mb-2 position-relative bg-light">
+            <img 
+              [src]="movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450/000000/FFFFFF?text=NO+IMAGE'" 
+              [alt]="movie.Title" 
+              class="card-img-top rounded-0 pe-none img-fluid"
+              style="filter: grayscale(100%); object-fit: cover; aspect-ratio: 2/3;"
+            />
+            <span *ngIf="movie.Type === 'series'" class="position-absolute top-0 end-0 bg-dark text-white px-2 py-1 small fw-bold">
+              SERIE
+            </span>
+          </div>
+
+          <div class="card-body p-2 d-flex flex-column justify-content-between">
+            <div>
+              <span class="badge bg-transparent text-dark border border-dark rounded-0 mb-2 font-monospace fs-8">
+                {{ movie.Type | uppercase }}
+              </span>
+              <h5 class="card-title fw-bold text-uppercase text-truncate mb-1 font-monospace fs-6">
+                {{ movie.Title }}
+              </h5>
+            </div>
+            <div class="d-flex justify-content-between align-items-center border-top border-dark pt-2 mt-2">
+              <span class="small font-monospace text-secondary">AÑO :</span>
+              <span class="fw-bold font-monospace text-dark fs-7">({{ movie.Year }})</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </ng-template>
 
   <footer class="mt-5 pt-4 border-top border-2 border-dark text-center">
     <p class="small text-muted font-monospace m-0">© 2026 OMDB_ARCHIVE // ALL RIGHTS RESERVED</p>
