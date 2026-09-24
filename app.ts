@@ -17,6 +17,9 @@ export class App {
   selectedType: string = '';
   movies: any[] = [];
   errorMessage: string = '';
+  
+  currentPage: number = 1;
+  totalResults: number = 0;
 
   selectedSeries: any = null;
   seasons: number[] = [];
@@ -35,10 +38,12 @@ export class App {
         console.log('RESULTADOS BÚSQUEDA:', data);
         if (data.Response === 'True') {
           this.movies = data.Search;
+          this.totalResults = parseInt(data.totalResults, 10) || 0;
           this.errorMessage = '';
         } else {
           this.movies = [];
-          this.errorMessage = data.Error;
+          this.totalResults = 0;
+          this.errorMessage = data.Error || 'No se encontraron resultados.';
         }
       },
       error: (err) => {
