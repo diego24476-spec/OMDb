@@ -35,7 +35,6 @@
            (click)="verDetalles(movie.imdbID)">
         
         <div class="overflow-hidden border border-dark mb-2 position-relative bg-light">
-
           <img 
             [src]="movie.Poster !== 'N/A' ? movie.Poster : 'https://placehold.co/300x450/000000/FFFFFF?text=NO+IMAGE'" 
             [alt]="movie.Title" 
@@ -64,6 +63,7 @@
     </div>
   </div>
 
+  <!-- Paginación -->
   <nav *ngIf="totalPages > 1" class="d-flex justify-content-center align-items-center gap-3 my-4 font-monospace">
     <button class="btn btn-outline-dark rounded-0" 
             [disabled]="currentPage === 1" 
