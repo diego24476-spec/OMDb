@@ -14,6 +14,8 @@ export class App {
   private omdbService = inject(OmdbService);
 
   searchQuery: string = '';
+  searchYear: string | number = ''; 
+  selectedType: string = '';
   movies: any[] = [];
   errorMessage: string = '';
   
