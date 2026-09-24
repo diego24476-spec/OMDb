@@ -1,0 +1,73 @@
+<div class="container py-5" *ngIf="cargando">
+  <div class="d-flex flex-column align-items-center my-5">
+    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+    <p class="text-muted fw-bold">Cargando sinopsis y detalles...</p>
+  </div>
+</div>
+
+<div class="container py-5" *ngIf="!cargando && mensaje">
+  <div class="alert alert-warning text-center shadow-sm p-4">
+    <h4>⚠️ {{ mensaje }}</h4>
+    <a routerLink="/" class="btn btn-primary mt-3">← Regresar al buscador</a>
+  </div>
+</div>
+
+<div class="container py-5" *ngIf="!cargando && pelicula">
+  <div class="card border-0 shadow-lg overflow-hidden">
+    <div class="row g-0">
+      
+      <div class="col-md-5 bg-dark d-flex align-items-center justify-content-center">
+        <img 
+          *ngIf="pelicula.Poster && pelicula.Poster !== 'N/A'" 
+          [src]="pelicula.Poster" 
+          [alt]="pelicula.Title" 
+          class="img-fluid w-100 h-100 object-fit-cover"
+        >
+        <div *ngIf="!pelicula.Poster || pelicula.Poster === 'N/A'" class="text-white p-5 text-center">
+          🎬 Sin póster disponible
+        </div>
+      </div>
+
+      <div class="col-md-7">
+        <div class="card-body p-4 p-lg-5">
+          <h1 class="card-title fw-bold mb-3">{{ pelicula.Title }}</h1>
+          
+          <div class="mb-4">
+            <span class="badge bg-primary me-2">{{ pelicula.Year }}</span>
+            <span class="badge bg-secondary me-2">{{ pelicula.Type | uppercase }}</span>
+            <span class="badge bg-warning text-dark">⭐ IMDb {{ pelicula.imdbRating }}</span>
+          </div>
+
+          <h5 class="fw-bold mt-4">Sinopsis Completa</h5>
+          <p class="text-secondary lh-lg">{{ pelicula.Plot }}</p>
+
+          <hr class="my-4">
+
+          <div class="row g-3">
+            <div class="col-6">
+              <strong>Director:</strong>
+              <p class="text-muted mb-0">{{ pelicula.Director }}</p>
+            </div>
+            <div class="col-6">
+              <strong>Género:</strong>
+              <p class="text-muted mb-0">{{ pelicula.Genre }}</p>
+            </div>
+            <div class="col-6">
+              <strong>Actores:</strong>
+              <p class="text-muted mb-0">{{ pelicula.Actors }}</p>
+            </div>
+            <div class="col-6">
+              <strong>Duración:</strong>
+              <p class="text-muted mb-0">{{ pelicula.Runtime }}</p>
+            </div>
+          </div>
+
+          <a routerLink="/" class="btn btn-primary mt-4">
+            ← Regresar a la búsqueda
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
