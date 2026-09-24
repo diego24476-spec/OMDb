@@ -10,7 +10,7 @@
       <div class="input-group">
         <input 
           type="text" 
-          class="form-control form-control-lg bg-transparent border-2 border-dark rounded-0 text-black shadow-none font-monospace placeholder-dark" 
+          class="form-control form-control-lg bg-transparent border-2 border-dark rounded-0 text-black shadow-none font-monospace" 
           placeholder="buscar película..." 
           [(ngModel)]="searchQuery" 
           (keyup.enter)="onSearch()"
@@ -28,17 +28,18 @@
     <p class="m-0 fw-bold font-monospace text-uppercase small">// {{ errorMessage }}</p>
   </div>
 
-  <div class="row g-4" *ngIf="movies.length > 0">
+  <div class="row g-4" *ngIf="movies && movies.length > 0">
     <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let movie of movies">
       <div class="card h-100 border-2 border-dark rounded-0 bg-white p-2" 
            style="cursor:pointer" 
            (click)="verDetalles(movie.imdbID)">
         
         <div class="overflow-hidden border border-dark mb-2 position-relative bg-light">
+
           <img 
-            [src]="movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450/000000/FFFFFF?text=NO+IMAGE'" 
+            [src]="movie.Poster !== 'N/A' ? movie.Poster : 'https://placehold.co/300x450/000000/FFFFFF?text=NO+IMAGE'" 
             [alt]="movie.Title" 
-            class="card-img-top rounded-0 pe-none filter-grayscale grayscale img-fluid"
+            class="card-img-top rounded-0 pe-none img-fluid"
             style="filter: grayscale(100%); object-fit: cover; aspect-ratio: 2/3;"
           />
         </div>
@@ -81,10 +82,10 @@
        (click)="cerrarDetalles()">
     <div class="bg-white border border-2 border-dark p-4" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <h4 class="fw-bold">{{ selectedMovie.Title }} ({{ selectedMovie.Year }})</h4>
-      <p><strong>Director:</strong> {{ selectedMovie.Director }}</p>
-      <p><strong>Género:</strong> {{ selectedMovie.Genre }}</p>
-      <p>{{ selectedMovie.Plot }}</p>
-      <button class="btn btn-dark rounded-0" (click)="cerrarDetalles()">Cerrar</button>
+      <p class="mb-1"><strong>Director:</strong> {{ selectedMovie.Director }}</p>
+      <p class="mb-2"><strong>Género:</strong> {{ selectedMovie.Genre }}</p>
+      <p class="small text-secondary">{{ selectedMovie.Plot }}</p>
+      <button class="btn btn-dark rounded-0 mt-3" (click)="cerrarDetalles()">Cerrar</button>
     </div>
   </div>
 
