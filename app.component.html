@@ -1,0 +1,83 @@
+<div class="container">
+  <h1>OMDB App</h1>
+
+  <!-- SECCIÓN 1: Buscar películas o series -->
+  <section>
+    <h2>Buscar</h2>
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        placeholder="Escribe un título..."
+        (keyup.enter)="buscar()"
+      />
+      
+      <select [(ngModel)]="searchType">
+        <option value="movie">Películas</option>
+        <option value="series">Series</option>
+      </select>
+
+      <button (click)="buscar()" [disabled]="loading">
+        {{ loading ? 'Buscando...' : 'Buscar' }}
+      </button>
+    </div>
+
+    <!-- Error -->
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <!-- Resultados -->
+    <div class="results" *ngIf="results.length > 0">
+      <div class="card" *ngFor="let item of results">
+        <img 
+          [src]="item.Poster !== 'N/A' ? item.Poster : 'https://via.placeholder.com/300x445?text=Sin+Imagen'" 
+          [alt]="item.Title"
+        />
+        <div class="info">
+          <h3>{{ item.Title }}</h3>
+          <p>Año: {{ item.Year }}</p>
+          <p>Tipo: {{ item.Type === 'movie' ? 'Película' : 'Serie' }}</p>
+          <small>IMDb ID: {{ item.imdbID }}</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- SECCIÓN 2: Consultar episodios por temporada -->
+  <section>
+    <h2>Episodios por temporada</h2>
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="imdbId" 
+        placeholder="IMDb ID (ej: tt0944947)"
+      />
+      <input 
+        type="number" 
+        [(ngModel)]="season" 
+        min="1" 
+        placeholder="Temporada"
+      />
+      <button (click)="verEpisodios()" [disabled]="loading">
+        {{ loading ? 'Cargando...' : 'Ver episodios' }}
+      </button>
+    </div>
+
+    <!-- Episodios -->
+    <div *ngIf="seasonData" class="season-info">
+      <h3>{{ seasonData.Title }} - Temporada {{ seasonData.Season }}</h3>
+      <p>Total episodios: {{ seasonData.totalSeasons || 'N/A' }}</p>
+    </div>
+
+    <div class="results" *ngIf="episodes.length > 0">
+      <div class="card episode" *ngFor="let ep of episodes">
+        <div class="info">
+          <h3>{{ ep.Episode }}. {{ ep.Title }}</h3>
+          <p>Fecha de estreno: {{ ep.Released }}</p>
+          <p>Rating: {{ ep.imdbRating || 'N/A' }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

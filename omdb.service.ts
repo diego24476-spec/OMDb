@@ -1,41 +1,38 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment'; 
 
 @Injectable({
   providedIn: 'root'
 })
 export class OmdbService {
-  private http = inject(HttpClient);
-  
-  private apiUrl = environment.omdbApiUrl;
-  private apiKey = environment.omdbApiKey;
+  private apiKey = 'ff282712';
+  private baseUrl = 'https://www.omdbapi.com/';
 
-  searchMovies(title: string, page: number = 1): Observable<any> {
-    const params = new HttpParams()
-      .set('s', title)
-      .set('page', page.toString())
-      .set('apikey', this.apiKey);
+  constructor(private http: HttpClient) { }
 
-    return this.http.get(this.apiUrl, { params });
+  // Buscar por tipo ('' = todo, 'movie', 'series')
+  getByType(search: string, type: string): Observable<any> {
+    let url = `${this.baseUrl}?s=${search}&apikey=${this.apiKey}`;
+    if (type) {
+      url += `&type=${type}`;
+    }
+    return this.http.get(url);
   }
 
-  getMovieByTitle(title: string): Observable<any> {
-    const params = new HttpParams()
-      .set('t', title)
-      .set('plot', 'full')
-      .set('apikey', this.apiKey);
-
-    return this.http.get(this.apiUrl, { params });
+  getMovies(search: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}?s=${search}&type=movie&apikey=${this.apiKey}`);
   }
 
-  getMovieDetails(imdbID: string): Observable<any> {
-    const params = new HttpParams()
-      .set('i', imdbID)
-      .set('plot', 'full')
-      .set('apikey', this.apiKey);
+  getSeries(search: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}?s=${search}&type=series&apikey=${this.apiKey}`);
+  }
 
-    return this.http.get(this.apiUrl, { params });
+  getEpisodes(imdbId: string, season: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}?i=${imdbId}&season=${season}&apikey=${this.apiKey}`);
+  }
+
+  getById(imdbId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}?i=${imdbId}&apikey=${this.apiKey}`);
   }
 }
