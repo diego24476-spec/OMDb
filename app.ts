@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OmdbService } from './services/omdb.service';
+import { OmdbService } from './services/omdb.service'; 
 
 @Component({
   selector: 'app-root',
@@ -18,72 +18,63 @@ export class App {
   selectedType: string = '';
   movies: any[] = [];
   errorMessage: string = '';
+  
+  currentPage: number = 1;
+  totalResults: number = 0;
 
-  selectedSeries: any = null;
-  seasons: number[] = [];
-  selectedSeason: number = 1;
-  episodes: any[] = [];
-  loadingEpisodes: boolean = false;
+  get totalPages(): number {
+    return Math.ceil(this.totalResults / 10); 
+  }
 
-  onSearch() {
+  selectedMovie: any = null;
+
+  onSearch(page: number = 1): void {
     if (!this.searchQuery.trim()) return;
 
-    this.selectedSeries = null;
-    const yearString = this.searchYear ? this.searchYear.toString() : '';
+    this.currentPage = page;
 
-    this.omdbService.getByType(this.searchQuery, this.selectedType, yearString).subscribe({
-      next: (data: any) => {
+    this.omdbService.searchMovies(this.searchQuery, page).subscribe({
+      next: (data) => {
         if (data.Response === 'True') {
           this.movies = data.Search;
+          this.totalResults = parseInt(data.totalResults, 10) || 0;
           this.errorMessage = '';
         } else {
           this.movies = [];
-          this.errorMessage = data.Error;
+          this.totalResults = 0;
+          this.errorMessage = data.Error || 'No se encontraron resultados.';
         }
       },
-      error: (err: any) => {
+      error: (err) => {
+        this.movies = [];
+        this.totalResults = 0;
         this.errorMessage = 'Ocurrió un error al consultar la API.';
         console.error(err);
       }
     });
   }
 
-  selectSeries(series: any) {
-    this.selectedSeries = series;
-    this.omdbService.getById(series.imdbID).subscribe({
-      next: (data: any) => {
-        if (data.Response === 'True') {
-          const totalSeasons = parseInt(data.totalSeasons, 10) || 1;
-          this.seasons = Array.from({ length: totalSeasons }, (_, i) => i + 1);
-          this.loadSeason(1);
-        }
-      },
-      error: (err: any) => console.error(err)
-    });
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.onSearch(page);
   }
 
-  loadSeason(season: number) {
-    this.selectedSeason = season;
-    this.loadingEpisodes = true;
-    
-    this.omdbService.getEpisodes(this.selectedSeries.imdbID, season).subscribe({
-      next: (data: any) => {
-        this.loadingEpisodes = false;
+  verDetalles(imdbID: string): void {
+    if (!imdbID) return;
+
+    this.omdbService.getMovieDetails(imdbID).subscribe({
+      next: (data) => {
         if (data.Response === 'True') {
-          this.episodes = data.Episodes || [];
+          this.selectedMovie = data;
         } else {
-          this.episodes = [];
+          console.error(data.Error);
         }
       },
-      error: (err: any) => {
-        this.loadingEpisodes = false;
-        console.error(err);
-      }
+      error: (err) => console.error(err)
     });
   }
 
-  backToSearch() {
-    this.selectedSeries = null;
-    this.episodes = [];
+  cerrarDetalles(): void {
+    this.selectedMovie = null;
   }
 }
